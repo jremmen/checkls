@@ -3,13 +3,14 @@
 c=0
 prog=$$
 site="LawSmart"
+
 tput civis
 
 function restore() {
 	tput cnorm
 	echo ""
 	kill $! > /dev/null 2>&1
-	#kill -s 9 $$ /dev/null 2>&1
+	kill -s 9 $$ > /dev/null 2>&1
 }
 
 function checkLawsmart() {
@@ -20,9 +21,10 @@ function checkLawsmart() {
 	kill $prog > /dev/null 2>&1	
 }
 
-trap restore SIGINT SIGKILL SIGTSTP
+trap restore SIGINT SIGKILL 
 
 checkLawsmart &
+
 lsc=$!
 
 for i in `seq ${#site} 70`;
