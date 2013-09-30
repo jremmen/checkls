@@ -2,7 +2,14 @@
 
 c=0
 prog=$$
-site="LawSmart"
+sitename=("LawSmart" "LawInfo" "LawInfo-Legal-Marketing" "Lead-Counsel" "LawInfo-Blog")
+siteurl=(
+	"http://www.lawsmart.com"
+	"http://www.lawinfo.com"
+	"http://www.lawinfo.com/legal-marketing/"
+	"http://www.leadcounsel.org"
+	"http://blog.lawinfo.com"
+)
 
 tput civis
 
@@ -13,30 +20,42 @@ function restore() {
 	kill -s 9 $$ > /dev/null 2>&1
 }
 
-function checkLawsmart() {
-	lawsmart=$(wget --server-response --spider -t 1 http://www.lawsmart.com 2>&1 | grep 'HTTP/')
-	code=${lawsmart:11:${#lawsmart}}
+function checkSite() {
+	lsite=$(wget --server-response --spider -t 1 "$1" 2>&1 | grep 'HTTP/')
+	code=${lsite:11:${#lsite}}
 	echo -n " $code"
 	echo ""
-	kill $prog > /dev/null 2>&1	
 }
 
 trap restore SIGINT SIGKILL 
 
-checkLawsmart &
-
 lsc=$!
 
-for i in `seq ${#site} 70`;
-do
-	s=$(printf "%-${i}s" "[${site}]")
-	echo -ne "\r${s// /=}"
-	echo -n "[${c}%]>"
-	sleep 0.1s
-	c=$(( ($i - ${#site}) * 100 / 48 ))
-	if [ $c -gt 100 ]
-	then
-		c=100
-	fi
-done
+function checkStatus() {
+	prog=$$
+	checkSite "$1" &
+	csid=$!
+	for i in `seq ${#1} 10000`;
+	do
+		ss=$(( ${i} / 10 ))
+		s=$(printf "%-${ss}s" "[")
+		c=$(( ${i} * 10 ))
 
+		if ! kill -0 $csid > /dev/null 2>&1;
+		then
+			break;
+		fi
+
+		echo -ne "\r${s// /=}"
+		echo -n "[${c}ms]"
+		echo -n ">"
+		sleep 0.01s
+	done
+	echo ""
+}
+
+for w in `seq 0 $(( ${#sitename[@]} - 1 ))`;
+do
+	echo "[${sitename[${w}]}] : ${siteurl[${w}]}"
+	checkStatus "${siteurl[${w}]}"
+done
