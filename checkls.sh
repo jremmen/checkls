@@ -37,7 +37,7 @@ function checkStatus() {
 	csid=$!
 	for i in `seq ${#1} 10000`;
 	do
-		ss=$(( ${i} / 10 ))
+		ss=$(( ${i} / 5 ))
 		s=$(printf "%-${ss}s" "[")
 		c=$(( ${i} * 10 ))
 
