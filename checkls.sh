@@ -29,8 +29,6 @@ function checkSite() {
 
 trap restore SIGINT SIGKILL 
 
-lsc=$!
-
 function checkStatus() {
 	prog=$$
 	checkSite "$1" &
